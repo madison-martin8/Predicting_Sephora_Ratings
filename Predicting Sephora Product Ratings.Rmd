@@ -1,0 +1,54 @@
+---
+title: "Predicting Sephora Product Ratings"
+author: "Madison Martin"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+# Introduction 
+This project aims to predict the user ratings for beauty products sold on the popular website for beauty retailer Sephora. Specifically, it aims to identify the role product attributes like brand, price, online popularity, limited edition offerings, and exclusivity have on customer satisfaction with the products. 
+
+## Research Questions: 
+**What product characteristics (if any) play a role in predicting the customer satisfaction with the product, as evidenced by the product's rating? Do limited edition products tend to have higher or lower ratings? Does interest in the product seem to correlate with higher ratings?** 
+
+
+### Sourcing the Data 
+This data set was sourced from the Kaggle website and uploaded by user Raghad Alharbi, which you can find at this link [here](https://www.kaggle.com/datasets/raghadalharbi/all-products-available-on-sephora-website). It was collected utilizing web scraping methods during the month of April 2020 from the Sepohra US website. 
+
+### Download the Data 
+```{r download data}
+# download the product data from sephora website 
+# Load the necessary libraries 
+library(readr)
+library(tidyr)
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+
+# read in csv 
+sephora_df <- read_csv(file = "sephora_website_dataset.csv")
+head(sephora_df)
+```
+
+### Precleaning for Analysis 
+```{r precleaning}
+# take out the vars we don't think we will use in the analysis 
+# going to remove heavy text ones: url, instructions, ingredients 
+product_df <- sephora_df %>% 
+  select(- URL, - how_to_use, -ingredients) 
+# view(product_df)
+```
+
+I'm already seeing that some products have a different price vs. value_price. I'm guessing these are mostly sets/kits (as you can see if you head the df), but the data documentation does not state this explicitly. I am going to make a new column for these products specifically and keep it in mind as I go through my exploratory analyses. 
+
+```{r cleaning 2}
+# add column to identify products who have a different price from the "value price" 
+product_df <- product_df %>% 
+  mutate(deal = ifelse(value_price - price > 0, 1, 0))
+```
+
+# Exploratory Data Analysis 
