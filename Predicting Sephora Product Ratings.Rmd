@@ -93,7 +93,42 @@ product_df %>%
   head(n = 10)
 ```
 
-```{r popular products}
+```{r eda price}
+# show the price distribution for products 
+product_df %>% 
+  ggplot(mapping = aes(x = price)) + 
+  geom_freqpoly() + 
+  theme_classic() + 
+  scale_x_continuous(breaks = pretty(product_df$price, n = 10)) +
+  labs(
+    title = "Price Distribution of All Products", 
+    x = "Price (in Dollars)", 
+    y = "Number of Products Available", 
+    caption = "Source: Sephora US Website"
+  )
+
+# how many products are below $100? 
+product_df %>% 
+  filter(price > 100) %>% 
+  count()# more than 90% are below 100 dollars 
+# let's look at distribution for these 
+product_df %>% 
+  filter(price <= 100) %>% 
+  ggplot(mapping = aes(x = price)) + 
+  geom_freqpoly() + 
+  theme_classic() + 
+  scale_x_continuous(breaks = pretty(product_df$price, n = 50)) +
+  labs(
+    title = "Price Distribution of All Products $100 or Below", 
+    x = "Price (in Dollars)", 
+    y = "Number of Products Available", 
+    caption = "Source: Sephora US Website"
+  )
+```
+
+
+
+```{r eda popular products}
 # see the most popular (loves) individual products 
 most_loved <- product_df[order(product_df$love, decreasing = TRUE), ] %>% 
   head(n = 15)
