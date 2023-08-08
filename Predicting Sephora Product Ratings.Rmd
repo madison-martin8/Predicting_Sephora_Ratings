@@ -28,6 +28,7 @@ library(tidyr)
 library(ggplot2)
 library(tidyverse)
 library(dplyr)
+library(knitr)
 
 # read in csv 
 sephora_df <- read_csv(file = "sephora_website_dataset.csv")
@@ -52,3 +53,64 @@ product_df <- product_df %>%
 ```
 
 # Exploratory Data Analysis 
+
+First, let's get a little bit more information about the many products in our data set. 
+```{r eda basic means}
+# get the average price, number of loves, and rating 
+mean(product_df$price)
+mean(product_df$rating)
+mean(product_df$number_of_reviews) 
+median(product_df$number_of_reviews)
+mean(product_df$love) #number of loves of product, basically likes 
+```
+
+```{r eda top brands}
+# find the brands with the most products 
+product_df %>% 
+  count(brand, sort = TRUE) %>% 
+  head(n = 10)
+
+# make graph for this 
+product_df %>% 
+  count(brand, sort = TRUE) %>% 
+  head(n = 10) %>% 
+  ggplot(mapping = aes(reorder(brand, -n), y = n)) +
+  geom_col(colour = "purple") + 
+  scale_x_discrete(guide = guide_axis(n.dodge = 2)) + #to make it easier to read
+  theme_classic() + 
+  labs(
+    title = "Brands with Most Products Available", 
+    x = "Brand", 
+    y = "Number of Products Available", 
+    caption = "Source: Sephora US Website" 
+  )
+```
+
+```{r eda category}
+# let's see which categories have the most products represented 
+product_df %>% 
+  count(category, sort = TRUE) %>% 
+  head(n = 10)
+```
+
+```{r popular products}
+# see the most popular (loves) individual products 
+most_loved <- product_df[order(product_df$love, decreasing = TRUE), ] %>% 
+  head(n = 15)
+kable(most_loved %>% 
+            select(brand, category, name, love, rating, number_of_reviews, price))
+```
+
+```{r eda correlations}
+# relationship between number of reviews and rating ? 
+cor(product_df$number_of_reviews, product_df$rating)
+
+# relationship between popularity (loves) and rating? 
+cor(product_df$love, product_df$rating)
+
+# relationship between popularity (loves) and number of reviews? 
+cor(product_df$love, product_df$number_of_reviews)
+
+# this will be useful later when we select the factors for our models, to insure independence 
+```
+
